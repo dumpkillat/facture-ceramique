@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Facture - Carrelage Pro</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #e8ecf1;
+            padding: 10px;
+            padding-bottom: 120px;
+            font-size: 16px;
+            color: #1a1a1a;
+        }
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 6px 30px rgba(0,0,0,0.10);
+            overflow: hidden;
+        }
+        .topbar {
+            background: #1a1a1a;
+            color: white;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .btn-pdf-top {
+            background: white;
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .content { padding: 20px 18px; }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #1a1a1a;
+        }
+        .logo-area {
+            width: 150px;
+            height: 80px;
+            border: 2px dashed #bbb;
+            border-radius: 10px;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 13px;
+            background: #fafafa;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+        }
+        .logo-area.has-logo { border: 1px solid #ddd; color: transparent; }
+        .company-name { font-size: 22px; font-weight: 800; }
+        .company-slogan { font-size: 13px; color: #777; font-style: italic; margin: 4px 0 8px; }
+        .company-details { font-size: 12px; color: #555; line-height: 1.6; }
+        .facture-badge {
+            display: inline-block;
+            background: #1a1a1a;
+            color: white;
+            padding: 8px 22px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-top: 10px;
+        }
+        .facture-no { font-size: 13px; color: #666; margin-top: 5px; }
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .client-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 14px;
+            background: #f7f8f9;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 22px;
+        }
+        .client-grid .full-width { grid-column: span 2; }
+        .field { display: flex; flex-direction: column; gap: 3px; }
+        .field label { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; }
+        .field input, .field textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+        }
+        .field input:focus, .field textarea:focus { outline: none; border-color: #1a1a1a; }
+        .table-wrapper { overflow-x: auto; margin-bottom: 10px; }
+        table { width: 100%; min-width: 520px; border-collapse: collapse; }
+        thead th {
+            background: #1a1a1a;
+            color: white;
+            padding: 12px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        tbody td { padding: 8px 6px; border-bottom: 1px solid #eee; }
+        tbody input {
+            width: 100%;
+            padding: 10px 8px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            background: transparent;
+        }
+        tbody input:focus { outline: none; border-color: #1a1a1a; background: #fafafa; }
+        .total-cell { font-weight: 700; text-align: right; padding-right: 12px; font-size: 14px; }
+        .btn-add {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px dashed #bbb;
+            background: none;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #777;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .btn-delete { background: none; border: none; color: #c0392b; font-size: 20px; cursor: pointer; padding: 4px 10px; }
+        .totaux-box { background: #f7f8f9; border-radius: 10px; padding: 18px; margin-top: 18px; }
+        .tot-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 9px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+        .tot-row:last-child { border-bottom: none; }
+        .tot-row.total {
+            background: #1a1a1a;
+            color: white;
+            padding: 14px 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-size: 17px;
+            font-weight: 700;
+        }
+        .tot-row.depot { background: #eef2f8; padding: 12px; border-radius: 6px; }
+        .tot-row.balance { background: #fef5f5; padding: 12px; border-radius: 6px; color: #b91c1c; font-weight: 700; }
+        .tot-row.balance .amount { font-size: 19px; color: #b91c1c; }
+        .depot-input {
+            width: 110px;
+            padding: 8px 10px;
+            border: 1.5px solid #ccc;
+            border-radius: 6px;
+            text-align: right;
+            font-weight: 700;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .notes-section { margin-top: 18px; }
+        .notes-section textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            min-height: 65px;
+            resize: vertical;
+        }
+        .bottombar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 14px 18px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+            z-index: 20;
+            max-width: 750px;
+            margin: 0 auto;
+            border-radius: 20px 20px 0 0;
+        }
+        .btn { flex: 1; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .btn-reset { background: #f0f0f0; color: #555; }
+        .btn-pdf { background: #1a1a1a; color: white; }
+        .btn-email { background: #2563eb; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="topbar">
+        🧱 Carrelage Pro
+        <button class="btn-pdf-top" onclick="genererPDF()">📄 PDF</button>
+    </div>
+    <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="chargerLogo(event)">
+
+    <div class="content">
+        <div class="header">
+            <div class="logo-area" id="logoBox" onclick="document.getElementById('logoInput').click()">📷 LOGO<br>(toucher)</div>
+            <div class="company-name" contenteditable="true" id="compName">CARRELAGE PRO</div>
+            <div class="company-slogan" contenteditable="true">Spécialiste en pose de céramique & porcelaine</div>
+            <div class="company-details" contenteditable="true">
+                1234 Rue de la Céramique, Montréal, QC H1H 1H1<br>
+                Tél: 514-555-0123 | Cell: 514-555-0456<br>
+                info@carrelagepro.ca | NEQ: 123456789
+            </div>
+            <div class="facture-badge">FACTURE</div>
+            <div class="facture-no" contenteditable="true">Nº 2024-001</div>
+        </div>
+
+        <div class="section-title">👤 Informations client</div>
+        <div class="client-grid">
+            <div class="field"><label>Date</label><input type="date" id="dateFacture"></div>
+            <div class="field"><label>Client</label><input type="text" id="clientNom" placeholder="Nom du client"></div>
+            <div class="field"><label>Contact</label><input type="text" id="clientContact" placeholder="Personne contact"></div>
+            <div class="field"><label>Téléphone</label><input type="tel" id="clientTel" placeholder="514-555-0000"></div>
+            <div class="field"><label>Cellulaire</label><input type="tel" id="clientCell" placeholder="514-555-0000"></div>
+            <div class="field"><label>Courriel</label><input type="email" id="clientEmail" placeholder="client@exemple.com"></div>
+            <div class="field full-width"><label>Adresse</label><input type="text" id="clientAdresse" placeholder="Adresse complète"></div>
+            <div class="field full-width"><label>Chantier (si différent)</label><input type="text" id="clientChantier" placeholder="Adresse des travaux"></div>
+        </div>
+
+        <div class="section-title">📋 Description des travaux</div>
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th>Description</th><th style="width:70px;">Qté</th><th style="width:100px;">Prix unit.</th><th style="width:100px;">Total</th><th style="width:40px;"></th></tr></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <button class="btn-add" onclick="ajouterLigne()">＋ Ajouter une ligne</button>
+        </div>
+
+        <div class="totaux-box">
+            <div class="tot-row"><span>Sous-total</span><span class="amount" id="sousTotal">0,00 $</span></div>
+            <div class="tot-row"><span>TPS (5%)</span><span class="amount" id="tps">0,00 $</span></div>
+            <div class="tot-row"><span>TVQ (9.975%)</span><span class="amount" id="tvq">0,00 $</span></div>
+            <div class="tot-row total"><span>TOTAL</span><span class="amount" id="totalFacture">0,00 $</span></div>
+            <div class="tot-row depot"><span>Dépôt / Acompte</span><input type="text" class="depot-input" id="depot" value="0,00 $" oninput="recalculer()"></div>
+            <div class="tot-row balance"><span>SOLDE DÛ</span><span class="amount" id="balance">0,00 $</span></div>
+        </div>
+
+        <div class="notes-section">
+            <div class="section-title">📝 Notes</div>
+            <textarea id="notes">Paiement dû à la réception. Retard : 1,5% par mois (18% par an). Modes acceptés : Virement Interac, chèque, espèces.</textarea>
+        </div>
+    </div>
+
+    <div class="bottombar">
+        <button class="btn btn-reset" onclick="reinitialiser()">🔄 Nouveau</button>
+        <button class="btn btn-pdf" onclick="genererPDF()">📄 PDF</button>
+        <button class="btn btn-email" onclick="envoyerEmail()">✉️ Envoyer</button>
+    </div>
+</div>
+
+<script>
+function init() {
+    document.getElementById('dateFacture').value = new Date().toISOString().split('T')[0];
+    document.getElementById('tableBody').innerHTML = '';
+    [{d:'Pose de carrelage céramique 12x24 — Salon',q:'1',p:'2400.00'},
+     {d:'Mortier-colle, coulis, membrane',q:'1',p:'380.00'},
+     {d:'Préparation et nivelage du plancher',q:'1',p:'650.00'},
+     {d:'Installation de plinthes céramiques',q:'1',p:'320.00'},
+     {d:'',q:'0',p:'0.00'},
+     {d:'',q:'0',p:'0.00'}].forEach(l => ajouterLigne(l.d,l.q,l.p));
+    recalculer();
+}
+function ajouterLigne(d,q,p) {
+    var t=document.createElement('tr');
+    t.innerHTML='<td><input value="'+d+'" placeholder="Description"></td><td><input type="number" value="'+q+'" min="0" step="0.01" oninput="recalculer()" style="text-align:center;"></td><td><input type="number" value="'+p+'" min="0" step="0.01" oninput="recalculer()" style="text-align:right;"></td><td class="total-cell">0,00 $</td><td><button class="btn-delete" onclick="this.closest(\'tr\').remove();recalculer();">×</button></td>';
+    document.getElementById('tableBody').appendChild(t);
+}
+function recalculer() {
+    var st=0;
+    document.querySelectorAll('#tableBody tr').forEach(function(r){
+        var q=parseFloat(r.querySelectorAll('input')[1].value)||0;
+        var p=parseFloat(r.querySelectorAll('input')[2].value)||0;
+        var lt=q*p;
+        r.querySelector('.total-cell').textContent=lt.toLocaleString('fr-CA',{minimumFractionDigits:2})+' $';
+        st+=lt;
+    });
+    var tps=st*0.05, tvq=st*0.09975, tot=st+tps+tvq;
+    var dep=parseFloat((document.getElementById('depot').value||'0').replace(/[^0-9.,]/g,'').replace(',','.'))||0;
+    document.getElementById('sousTotal').textContent=st.toLocaleString('fr-CA',{minimumFractionDigits:2})+' $';
+    document.getElementById('tps').textContent=tps.toLocaleString('fr-CA',{minimumFractionDigits:2})+' $';
+    document.getElementById('tvq').textContent=tvq.toLocaleString('fr-CA',{minimumFractionDigits:2})+' $';
+    document.getElementById('totalFacture').textContent=tot.toLocaleString('fr-CA',{minimumFractionDigits:2})+' $';
+    document.getElementById('balance').textContent=(tot-dep).toLocaleString('fr-CA',{minimumFractionDigits:2})+' $';
+}
+function chargerLogo(e) {
+    var f=e.target.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(ev){var lb=document.getElementById('logoBox');lb.style.backgroundImage='url('+ev.target.result+')';lb.classList.add('has-logo');lb.textContent='';};
+    r.readAsDataURL(f);
+}
+function genererPDF(){window.print();}
+function envoyerEmail(){
+    var tot=document.getElementById('totalFacture').textContent;
+    var bal=document.getElementById('balance').textContent;
+    var em=document.getElementById('clientEmail').value;
+    var dt=document.getElementById('dateFacture').value;
+    window.location.href='mailto:'+em+'?subject=Facture Carrelage Pro&body=Bonjour,%0D%0A%0D%0AVoici votre facture.%0D%0A%0D%0ADate : '+dt+'%0D%0ATotal : '+tot+'%0D%0ASolde du : '+bal+'%0D%0A%0D%0ACordialement,%0D%0ACarrelage Pro';
+}
+function reinitialiser(){if(confirm('Effacer toutes les donnees ?')){document.querySelectorAll('.client-grid input').forEach(function(i){i.value='';});document.getElementById('depot').value='0,00 $';document.getElementById('notes').value='';init();}}
+window.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
